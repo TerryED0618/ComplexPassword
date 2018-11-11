@@ -549,7 +549,7 @@ Function New-ComplexPasswordAscii {
 				
 				# Create a hash table to splat Test-PasswordComplexity parameters.
 				$testPasswordComplexityParameters = @{}
-				$testPasswordComplexityParameters.Password = $PSItem.Password
+				$testPasswordComplexityParameters.Password = $password
 				If ( $MinLength ) { $testPasswordComplexityParameters.MinLength = $MinLength }
 				If ( $MinUppercase ) { $testPasswordComplexityParameters.MinUppercase = $MinUppercase }
 				If ( $MinLowercase ) { $testPasswordComplexityParameters.MinLowercase = $MinLowercase }
