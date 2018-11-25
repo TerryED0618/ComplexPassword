@@ -15,4 +15,5 @@ ForEach ( $import In @( $public + $private ) ) {
 }
 
 # Export Public functions
-Export-ModuleMember -Function $Public.BaseName
+# Rely on PSD1's FunctionsToExport (recommended) or include the following:
+# Export-ModuleMember -Function $Public.BaseName
