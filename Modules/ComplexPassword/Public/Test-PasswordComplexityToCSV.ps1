@@ -351,6 +351,7 @@ Function Test-PasswordComplexityToCSV {
 			If ( $userName ) { $testPasswordComplexityParameters.UserName = $userName }
 			If ( $displayName ) { $testPasswordComplexityParameters.DisplayName = $displayName }
 			If ( $MinLength ) { $testPasswordComplexityParameters.MinLength = $MinLength }
+			If ( $MaxLength ) { $testPasswordComplexityParameters.MaxLength = $MaxLength }
 			If ( $MinUppercase ) { $testPasswordComplexityParameters.MinUppercase = $MinUppercase }
 			If ( $MinLowercase ) { $testPasswordComplexityParameters.MinLowercase = $MinLowercase }
 			If ( $MinNumber ) { $testPasswordComplexityParameters.MinNumber = $MinNumber }

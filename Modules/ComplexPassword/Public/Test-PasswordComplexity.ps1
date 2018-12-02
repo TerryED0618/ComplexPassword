@@ -29,6 +29,9 @@ Function Test-PasswordComplexity {
 		.PARAMETER MinLength Int
 			The minimum password character length required to be compliant.  The default is zero.
 
+		.PARAMETER MaxLength Int
+			The maximum password character length allowed to be compliant.  The default of zero indicates not to check for maximum length.
+
 		.PARAMETER MinUppercase Int
 			The minimum number of upppercase letters (an uppercase letter that has a lowercase variant) required to be compliant.  The default is zero.
 
@@ -51,7 +54,7 @@ Function Test-PasswordComplexity {
 			Default is not to use Active Directory.  If enabled:
 			* Uses executing workstation's Active Directory domain
 			* Gets the default domain password policy
-			* Overwrites -MinLength and -MinCategory if either are weaker
+			* Overwrites -MinLength and -MinCategory  -MaxLength if either are weaker
 			* If supplied, gets the user properties SamAccountName and DisplayName from Active Directory, using them instead of the parameters UserName and DisplayName values.
 			
 			No attempt to validate the password against Active Directory objects is made.
@@ -103,6 +106,11 @@ Function Test-PasswordComplexity {
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
 		[Int] $MinLength = 0,
+	
+		[Parameter(
+		ValueFromPipeline=$TRUE,
+		ValueFromPipelineByPropertyName=$TRUE )]
+		[Int] $MaxLength = 0,
 
 		[Parameter(
 		ValueFromPipeline=$TRUE,
@@ -176,6 +184,9 @@ Function Test-PasswordComplexity {
 
 			$MinLength = [Math]::Max( $MinLength, $domainPasswordPolicy.MinPasswordLength )
 			Write-Debug "`$MinLength:,$MinLength"
+			
+			# User-Password attribute Range-Upper 128.  Windows>Desktop>Active Directory Schema>Attributes>All Attributes>User-Password https://docs.microsoft.com/en-us/windows/desktop/ADSchema/a-userpassword
+			$MaxLength = 127
 
 			If ( $domainPasswordPolicy.ComplexityEnabled ) {
 				$MinCategory = [Math]::Max( $MinCategory, 3 ) 
@@ -212,7 +223,12 @@ Function Test-PasswordComplexity {
 
 		If ( $MinLength -And ( $Password.Length -LT $MinLength ) ) {
 			$isCompliant = $FALSE
-			$status = (( $status, " length '$($Password.Length)' less than '$MinLength'" ) -Join ';').Trim(';')
+			$status = (( $status, " length '$($Password.Length)' less than min length '$MinLength'" ) -Join ';').Trim(';')
+		}
+
+		If ( $MaxLength -And ( $MaxLength -LT $Password.Length ) ) {
+			$isCompliant = $FALSE
+			$status = (( $status, " length '$($Password.Length)' greater than max length '$MaxLength'" ) -Join ';').Trim(';')
 		}
 
 		#---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
