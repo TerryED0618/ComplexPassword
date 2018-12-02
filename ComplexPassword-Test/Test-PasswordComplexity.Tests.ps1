@@ -13,18 +13,44 @@
     }
 
 	$result = Test-PasswordComplexity -MinLength 7 -Password '12345678'
-    It '12345678,Length greater than min should return $TRUE' {
+    It '12345678,Length (8) greater than min 7 should return $TRUE' {
         $result.IsCompliant | Should Be $TRUE
     }
 	
 	$result = Test-PasswordComplexity -MinLength 8 -Password '12345678'
-    It '12345678,Length equal to min should return $TRUE' {
+    It '12345678,Length (8) equal to min 8 should return $TRUE' {
         $result.IsCompliant | Should Be $TRUE
     }
 
 	$result = Test-PasswordComplexity -MinLength 9 -Password '12345678'
-    It '12345678,Length less than min should return $FALSE' {
+    It '12345678,Length (8) less than min 9 should return $FALSE' {
         $result.IsCompliant | Should Be $FALSE
+    
+	}
+	
+	$result = Test-PasswordComplexity -MaxLength 0 -Password ''
+    It ',Length 0 should return $TRUE' {
+        $result.IsCompliant | Should Be $TRUE
+    }
+
+	$result = Test-PasswordComplexity -MaxLength 1 -Password '1'
+    It '1,Length 1 should return $TRUE' {
+        $result.IsCompliant | Should Be $TRUE
+    }
+
+	$result = Test-PasswordComplexity -MaxLength 7 -Password '12345678'
+    It '12345678,Length (8) greater than max 7 should return $FALSE' {
+        $result.IsCompliant | Should Be $FALSE
+    }
+	
+	$result = Test-PasswordComplexity -MaxLength 8 -Password '12345678'
+    It '12345678,Length (8) equal to max 8 should return $TRUE' {
+        $result.IsCompliant | Should Be $TRUE
+    }
+
+	$result = Test-PasswordComplexity -MaxLength 9 -Password '12345678'
+    It '12345678,Length (8) less than max 9 should return $TRUE' {
+        $result.IsCompliant | Should Be $TRUE
     }
 	
 }
