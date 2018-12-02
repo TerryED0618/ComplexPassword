@@ -43,6 +43,9 @@
 ### PARAMETER MinLength Int
 		The minimum password character length required to be compliant.  The default is zero.
 
+### PARAMETER MaxLength Int
+		The maximum password character length allowed to be compliant.  The default of zero indicates not to check for maximum length.
+
 ### PARAMETER MinUppercase Int
 		The minimum number of upppercase letters required to be compliant.  The default is zero.
 
@@ -175,6 +178,9 @@
 ### PARAMETER MinLength Int
 		The minimum password character length required to be compliant.  The default is one.
 
+### PARAMETER MaxLength Int
+		The maximum password character length allowed to be compliant.  The default of zero indicates not to check for maximum length.
+
 ### PARAMETER MinUppercase Int
 		The minimum number of upppercase letters required to be compliant.  The default is zero.
 
@@ -256,7 +262,7 @@
 ### NOTE
 		Author: Terry E Dow
 		Creation Date: 2018-08-01
-		Last Modified: 2018-09-19
+		Last Modified: 2018-12-02
 
 		Reference:
 			Password must meet complexity requirements https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/password-must-meet-complexity-requirements
