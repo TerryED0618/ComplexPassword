@@ -208,25 +208,21 @@ Describe 'Test-PasswordComplexity-ExcludeCharacter' {
 
 Describe 'Test-PasswordComplexity-UserName' {
 
-	# 
 	$result = Test-PasswordComplexity -UserName 'Usr' -Password 'aUsra' 
     It 'Usr,aUsra,User name too short should return $TRUE' {
         $result.IsCompliant | Should Be $TRUE
     }
 
-	# 
 	$result = Test-PasswordComplexity -UserName 'User' -Password 'aUsera' 
     It 'User,aUsera,User name same case should return $FALSE' {
         $result.IsCompliant | Should Be $FALSE
     }
 
-	# 
 	$result = Test-PasswordComplexity -UserName 'user' -Password 'aUsera' 
     It 'user,aUsera,User name uppercase should return $FALSE' {
         $result.IsCompliant | Should Be $FALSE
     }
 
-	# 
 	$result = Test-PasswordComplexity -UserName 'User' -Password 'ausera' 
     It 'User,ausera,User name lowercase should return $FALSE' {
         $result.IsCompliant | Should Be $FALSE
@@ -237,22 +233,22 @@ Describe 'Test-PasswordComplexity-UserName' {
 Describe 'Test-PasswordComplexity-DisplayName' {
 
     $result = Test-PasswordComplexity -DisplayName 'abc' -Password 'ABCdef123!@#' 
-    It 'abc,ABCdef123!@#,Display name too short should return $TRUE' {
+    It 'abc,ABCdef123!@#,Display name component too short should return $TRUE' {
         $result.IsCompliant | Should Be $TRUE
     }
 
 	$result = Test-PasswordComplexity -DisplayName 'Name' -Password 'aNamea' 
-    It 'Name,aNamea,Display name same case should return $FALSE' {
+    It 'Name,aNamea,Display name component same case should return $FALSE' {
         $result.IsCompliant | Should Be $FALSE
     }
 
 	$result = Test-PasswordComplexity -DisplayName 'name' -Password 'aNamea' 
-    It 'name,aNamea,Display name uppercase should return $FALSE' {
+    It 'name,aNamea,Display name component uppercase should return $FALSE' {
         $result.IsCompliant | Should Be $FALSE
     }
 
 	$result = Test-PasswordComplexity -DisplayName 'Name' -Password 'anamea' 
-    It 'Name,anamea,Display name lowercase should return $FALSE' {
+    It 'Name,anamea,Display name component lowercase should return $FALSE' {
         $result.IsCompliant | Should Be $FALSE
     }
 
@@ -288,5 +284,25 @@ Describe 'Test-PasswordComplexity-DisplayName' {
 	
 }
 
-#Describe 'Test-PasswordComplexity-UseActiveDirectory' {
-#}
+Describe 'Test-PasswordComplexity-UseActiveDirectory' {
+
+	$result = Test-PasswordComplexity -UseActiveDirectory -UserName 'sAMAccountName' -DisplayName 'Fst Last' -Password 'asAMAccountNameaABCdef123!@#' 
+    It 'sAMAccountName,asAMAccountNameaABCdef123!@#,User name "sAMAccountName" should return $FALSE' {
+        $result.IsCompliant | Should Be $FALSE
+    }
+
+    $result = Test-PasswordComplexity -UseActiveDirectory -UserName 'sAMAccountName' -DisplayName 'Fst Last' -Password 'aFstaABCdef123!@#' 
+    It 'sAMAccountName,aFstaABCdef123!@#,Display name component "Fst" too short (<=3) should return $TRUE' {
+        $result.IsCompliant | Should Be $TRUE
+    }
+
+    $result = Test-PasswordComplexity -UseActiveDirectory -UserName 'sAMAccountName' -DisplayName 'Fst Last' -Password 'aLastaABCdef123!@#'
+    It 'sAMAccountName,aLastaABCdef123!@#,Display name component "Last" should return $FALSE' {
+        $result.IsCompliant | Should Be $FALSE
+    }
+	
+}
+
+
+
+    
