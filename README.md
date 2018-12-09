@@ -7,3 +7,8 @@
 
 ##  Add *.TXT extention for all script files (*.PS1, *.CMD, *.BAT)
 ### Get-ChildItem *.PS*1,*.CMD,*.BAT -Exclude *.TXT -File -Recurse | ForEach-Object { Rename-Item -Path $PSItem.VersionInfo.FileName -NewName "$($PSItem.VersionInfo.FileName).TXT" -PassThru }
+
+## Unblock all files marked remote.  
+### Get-ChildItem -File -Recurse | ForEach-Object { Try { (Get-Item $PSItem.VersionInfo.FileName -Stream 'Zone.Identifier' -ErrorAction Stop).FileName; Unblock-File $PSItem.VersionInfo.FileName } Catch { } }
+
+
