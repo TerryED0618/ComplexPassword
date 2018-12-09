@@ -75,6 +75,7 @@ Function New-ComplexPasswordAscii {
 				'` apostrophe reverse-apostrophe - ambiguous
 			-ExcludeCharacter "IOlo01'`%&+,<=>^|-_"
 				
+				
 		.PARAMETER Delimiter Char
 			Specifies the delimiter that separates the property values in the CSV file. The default is a comma (,). Enter a character, such as a colon (:). To specify a semicolon (;), enclose it in quotation marks.
 
@@ -124,7 +125,7 @@ Function New-ComplexPasswordAscii {
 		.NOTE
 			Author: Terry E Dow
 			Creation Date: 2018-08-01
-			Last Modified: 2018-09-19
+			Last Modified: 2018-12-05
 
 			Reference:
 				Password must meet complexity requirements https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/password-must-meet-complexity-requirements

@@ -52,6 +52,23 @@ Function Test-PasswordComplexityToCSV {
 
 		.PARAMETER MinCategory Int
 			The minimum number of character categories (upper/lower/number/special) required to be compliant.  The maxiumum value is 5.  The default is zero.
+			
+		.PARAMETER ExcludeCharacter String
+			One or more characters to be excluded from being generated.  The default is $NULL, no excluded characters.
+				% percent-sign - Enviroment variable substitution
+				& ampersand - Inline command separator
+				+ plus-sign - Excel macro prefix
+				, comma - Comma Separated Value file delimiter
+				< less-than - Redirect input
+				= equals-sign - Excel macro prefix
+				> greater-than - Redirect output
+				^ caret - Escape character
+				| vertical-bar - Pipe output to next command's input
+				0Oo zero OSCAR oscar - ambiguous
+				1Il one INDIA lima - ambiguous
+				-_ hyphen horizontal-bar - ambiguous
+				'` apostrophe reverse-apostrophe - ambiguous
+			-ExcludeCharacter "IOlo01'`%&+,<=>^|-_"
 
 		.PARAMETER UseActiveDirectory Switch
 			Default is not to use Active Directory.  If enabled:
@@ -113,6 +130,7 @@ Function Test-PasswordComplexityToCSV {
 		.NOTE
 			Author: Terry E Dow
 			Creation Date: 2018-08-01
+			Last Modified: 2018-12-05
 
 			Reference:
 				Password must meet complexity requirements https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/password-must-meet-complexity-requirements
@@ -167,12 +185,12 @@ Function Test-PasswordComplexityToCSV {
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
-		[Switch] $UseActiveDirectory = $NULL,
-
+		[String] $ExcludeCharacter = '',
+		
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
-		[String] $ExcludeCharacter = '',
+		[Switch] $UseActiveDirectory = $NULL,
 
 
 		[Parameter(

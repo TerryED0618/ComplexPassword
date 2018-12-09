@@ -49,7 +49,24 @@ Function Test-PasswordComplexity {
 
 		.PARAMETER MinCategory Int
 			The minimum number of character categories (upper/lower/number/special) required to be compliant.  The maxiumum value is 5.  The default is zero.
-
+					
+		.PARAMETER ExcludeCharacter String
+			One or more characters to be excluded from being generated.  The default is $NULL, no excluded characters.
+				% percent-sign - Enviroment variable substitution
+				& ampersand - Inline command separator
+				+ plus-sign - Excel macro prefix
+				, comma - Comma Separated Value file delimiter
+				< less-than - Redirect input
+				= equals-sign - Excel macro prefix
+				> greater-than - Redirect output
+				^ caret - Escape character
+				| vertical-bar - Pipe output to next command's input
+				0Oo zero OSCAR oscar - ambiguous
+				1Il one INDIA lima - ambiguous
+				-_ hyphen horizontal-bar - ambiguous
+				'` apostrophe reverse-apostrophe - ambiguous
+			-ExcludeCharacter "IOlo01'`%&+,<=>^|-_"
+			
 		.PARAMETER UseActiveDirectory Switch
 			Default is not to use Active Directory.  If enabled:
 			* Uses executing workstation's Active Directory domain
@@ -72,6 +89,7 @@ Function Test-PasswordComplexity {
 		.NOTE
 			Author: Terry E Dow
 			Creation Date: 2018-11-07
+			Last Updated: 2018-12-08
 
 			Reference:
 				Password must meet complexity requirements https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/password-must-meet-complexity-requirements
@@ -146,13 +164,13 @@ Function Test-PasswordComplexity {
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
-		[Switch] $UseActiveDirectory = $NULL,
+		[String] $ExcludeCharacter = '',
 
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
-		[String] $ExcludeCharacter = ''
-
+		[Switch] $UseActiveDirectory = $NULL
+		
 	)
 
 	#---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -176,19 +194,33 @@ Function Test-PasswordComplexity {
 			Import-Module ActiveDirectory -ErrorAction SilentlyContinue
 			If ( $VerbosePreference -NE $verbosePreferenceCurrent ) { $VerbosePreference = $verbosePreferenceCurrent }
 
-			$domainPasswordPolicy = Get-ADDefaultDomainPasswordPolicy -ErrorAction SilentlyContinue
-			Write-Debug "`$domainPasswordPolicy.MinPasswordLength:,$($domainPasswordPolicy.MinPasswordLength)"
-			Write-Debug "`$domainPasswordPolicy.ComplexityEnabled:,$($domainPasswordPolicy.ComplexityEnabled)"
+			Try {
+				$domainPasswordPolicy = Get-ADDefaultDomainPasswordPolicy -ErrorAction SilentlyContinue
+				Write-Debug "`$domainPasswordPolicy.MinPasswordLength:,$($domainPasswordPolicy.MinPasswordLength)"
+				Write-Debug "`$domainPasswordPolicy.ComplexityEnabled:,$($domainPasswordPolicy.ComplexityEnabled)"
+			} Catch {
+				$domainPasswordPolicy = $NULL
+				Write-Debug "`$domainPasswordPolicy:,`$NULL"
+			}
 
 			# Overwrite complexity parameters if weaker than domain's.
-
-			$MinLength = [Math]::Max( $MinLength, $domainPasswordPolicy.MinPasswordLength )
+			If ( $domainPasswordPolicy ) {
+				$MinLength = [Math]::Max( $MinLength, $domainPasswordPolicy.MinPasswordLength )
+			} 
 			Write-Debug "`$MinLength:,$MinLength"
 			
-			# User-Password attribute Range-Upper 128.  Windows>Desktop>Active Directory Schema>Attributes>All Attributes>User-Password https://docs.microsoft.com/en-us/windows/desktop/ADSchema/a-userpassword
-			$MaxLength = 127
+			# If not specified, overwrite MaxLength with Active Directory current forest schema's password maximum length.
+			If ( -Not $MaxLength ) { 
+				# User-Password attribute Range-Upper default is 128.  User-Password https://docs.microsoft.com/en-us/windows/desktop/ADSchema/a-userpassword
+				Try {
+					$MaxLength = [DirectoryServices.ActiveDirectory.ActiveDirectorySchema]::GetCurrentSchema().FindProperty( 'userPassword' ).RangeUpper
+				} Catch {
+					$MaxLength = 128
+				}
+			}
+            Write-Debug "`$MaxLength:,$MaxLength"
 
-			If ( $domainPasswordPolicy.ComplexityEnabled ) {
+			If ( $domainPasswordPolicy -AND $domainPasswordPolicy.ComplexityEnabled ) {
 				$MinCategory = [Math]::Max( $MinCategory, 3 ) 
 			}
 			Write-Debug "`$MinCategory:,$MinCategory"
