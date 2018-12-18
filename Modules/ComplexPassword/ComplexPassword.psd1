@@ -122,6 +122,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 2018-12-03 3.2.1 Improvements to Pester file Test-PasswordComplexity.Tests.ps1.  
 2018-12-04 3.2.1 Updated Test-PasswordComplexity.ps1 to handle -UseActiveDirectory on computers that are not a member of a domain.  
 2018-12-05 3.2.1 Updated ComplexPassword.md, New-ComplexPasswordAscii.ps1, Test-PasswordComplexity.ps1, Test-PasswordComplexityToCSV.ps1, ComplexPassword.psd1 documentation.
+2018-12-17 3.2.1 Updated Test-PasswordComplexityToCSV.ps1 to complete MaxLength feature enhancement from 3.2.0.  
 '@
 	
 		} # End of PSData hashtable
