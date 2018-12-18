@@ -52,7 +52,7 @@ Function Test-PasswordComplexityToCSV {
 
 		.PARAMETER MinCategory Int
 			The minimum number of character categories (upper/lower/number/special) required to be compliant.  The maxiumum value is 5.  The default is zero.
-			
+
 		.PARAMETER ExcludeCharacter String
 			One or more characters to be excluded from being generated.  The default is $NULL, no excluded characters.
 				% percent-sign - Enviroment variable substitution
@@ -77,10 +77,10 @@ Function Test-PasswordComplexityToCSV {
 			* Overwrites -MinLength and -MinCategory if either are weaker
 			* Reads InFile's UserName column (can have DistinguishedName, GUID, SID, or SamAccountName values)
 			* Gets the user properties SamAccountName and DisplayName from Active Directory, using them instead of the InFile's columns UserName and DisplayName values.
-			
+
 			No attempt to validate the password against Active Directory objects is made.
-			
-			
+
+
 		.PARAMETER Delimiter Char
 			Specifies the delimiter that separates the property values in the CSV file. The default is a comma (,). Enter a character, such as a colon (:). To specify a semicolon (;), enclose it in quotation marks.
 
@@ -154,6 +154,11 @@ Function Test-PasswordComplexityToCSV {
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
+		[Int] $MaxLength = 0,
+
+		[Parameter(
+		ValueFromPipeline=$TRUE,
+		ValueFromPipelineByPropertyName=$TRUE )]
 		[Int] $MinUppercase = 0,
 
 		[Parameter(
@@ -186,7 +191,7 @@ Function Test-PasswordComplexityToCSV {
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
 		[String] $ExcludeCharacter = '',
-		
+
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
@@ -355,14 +360,14 @@ Function Test-PasswordComplexityToCSV {
 				$userName = $PSItem.UserName
 			} Catch {
 			}
-		
+
 			# Try to get user properties from InFile.
 			$displayName = ''
 			Try {
 				$displayName = $PSItem.DisplayName
 			} Catch {
 			}
-				
+
 			# Create a hash table to splat Test-PasswordComplexity parameters.
 			$testPasswordComplexityParameters = @{}
 			$testPasswordComplexityParameters.Password = $PSItem.Password
@@ -384,7 +389,7 @@ Function Test-PasswordComplexityToCSV {
 				}
 			}
 			$testResult = Test-PasswordComplexity @testPasswordComplexityParameters
-				
+
 			# Write metrics.
 			Write-Output ( $PSItem | Select-Object -Property *,@{ Name='IsCompliant'; Expression={ $testResult.isCompliant } },@{ Name='Status'; Expression={ $testResult.status } } )
 
