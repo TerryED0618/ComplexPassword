@@ -123,6 +123,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 2018-12-04 3.2.1 Updated Test-PasswordComplexity.ps1 to handle -UseActiveDirectory on computers that are not a member of a domain.  
 2018-12-05 3.2.1 Updated ComplexPassword.md, New-ComplexPasswordAscii.ps1, Test-PasswordComplexity.ps1, Test-PasswordComplexityToCSV.ps1, ComplexPassword.psd1 documentation.
 2018-12-17 3.2.1 Updated Test-PasswordComplexityToCSV.ps1 to complete MaxLength feature enhancement from 3.2.0.  
+2018-12-21 3.2.2 Update documentation .\README.md, .\Modules\ComplexPassword\en-US\ComplexPassword.md, added .\Modules\ComplexPassword\en-US\FileTools.md
+2018-12-21 3.2.2 Update testing for Test-PasswordComplexityToCSV MaxLength parameter .\ComplexPassword-Test\New-ComplexPasswordAscii-TEST.cmd, .\ComplexPassword-Test\Test-PasswordComplexityToCSV-TEST.cmd, .\ComplexPassword-Test\Test-PasswordComplexityToCSV-TEST.ps1
 '@
 	
 		} # End of PSData hashtable
