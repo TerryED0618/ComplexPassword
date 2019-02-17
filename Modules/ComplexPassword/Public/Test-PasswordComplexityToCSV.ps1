@@ -56,12 +56,22 @@ Function Test-PasswordComplexityToCSV {
 		.PARAMETER MinCategory Int
 			The minimum number of character categories (upper/lower/number/special) required to be compliant.  The maxiumum value is 5.  The default is zero.
 			
+		.PARAMETER PasswordPropertyName
+			The CSV file column or property name that contains passwords.  The default is 'Password'.
+
+		.PARAMETER UserNamePropertyName
+			The CSV file column or property name that contains usernames.  The default is 'UserName'.
+
+		.PARAMETER DisplayNamePropertyName
+			The CSV file column or property name that contains display names.  The default is 'DisplayName'.
+
 		.PARAMETER ExcludeCharacter String
 			One or more characters to be excluded from being generated.  The default is $NULL, no excluded characters.
 				% percent-sign - Enviroment variable substitution
 				& ampersand - Inline command separator
 				+ plus-sign - Excel macro prefix
 				, comma - Comma Separated Value file delimiter
+				" double quote - Comma Separated Value file delimiter
 				< less-than - Redirect input
 				= equals-sign - Excel macro prefix
 				> greater-than - Redirect output
@@ -130,10 +140,37 @@ Function Test-PasswordComplexityToCSV {
 		.EXAMPLE
 			Test-PasswordComplexityFromCSV -Path .\Test-PasswordComplexityFromCSV-TEST.csv -ExcludeCharacter '~,' -OutFileNameTag XC
 
+		.EXAMPLE
+			Given CSV (.\Test-PasswordComplexityFromCSV.csv) file header:
+				UserName,DisplayName,Credential
+				Wiliam,Bob,ABCdef123!@#
+				...
+
+			Use -PasswordPropertyName:
+				Test-PasswordComplexityFromCSV -PasswordPropertyName Credential
+
+		.EXAMPLE
+			Given CSV (.\Test-PasswordComplexityFromCSV.csv) file header:
+				AccountName,DisplayName,Password
+				Wiliam,Bob,ABCdef123!@#
+				...
+
+			Use -PasswordPropertyName:
+				Test-PasswordComplexityFromCSV -UserNamePropertyName AccountName
+
+		.EXAMPLE
+			Given CSV (.\Test-PasswordComplexityFromCSV.csv) file header:
+				UserName,FriendlyName,Password
+				Wiliam,Bob,ABCdef123!@#
+				...
+
+			Use -PasswordPropertyName:
+				Test-PasswordComplexityFromCSV -DisplayNamePropertyName FriendlyName
+
 		.NOTE
 			Author: Terry E Dow
 			Creation Date: 2018-08-01
-			Last Modified: 2018-12-17
+			Last Modified: 2019-02-16
 
 			Reference:
 				Password must meet complexity requirements https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/password-must-meet-complexity-requirements
@@ -195,6 +232,21 @@ Function Test-PasswordComplexityToCSV {
 		ValueFromPipelineByPropertyName=$TRUE )]
 		[String] $ExcludeCharacter = '',
 		
+		[Parameter(
+		ValueFromPipeline=$TRUE,
+		ValueFromPipelineByPropertyName=$TRUE )]
+		[String] $PasswordPropertyName = 'Password',
+		
+		[Parameter(
+		ValueFromPipeline=$TRUE,
+		ValueFromPipelineByPropertyName=$TRUE )]
+		[String] $UserNamePropertyName = 'UserName',
+		
+		[Parameter(
+		ValueFromPipeline=$TRUE,
+		ValueFromPipelineByPropertyName=$TRUE )]
+		[String] $DisplayNamePropertyName = 'DisplayName',
+
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
@@ -360,20 +412,23 @@ Function Test-PasswordComplexityToCSV {
 			$userName = ''
 			# Try to get user properties from InFile.
 			Try {
-				$userName = $PSItem.UserName
+				#$userName = $PSItem.UserName
+				$userName = $PSItem.$UserNamePropertyName
 			} Catch {
 			}
 		
 			# Try to get user properties from InFile.
 			$displayName = ''
 			Try {
-				$displayName = $PSItem.DisplayName
+				#$displayName = $PSItem.DisplayName
+				$displayName = $PSItem.$DisplayNamePropertyName
 			} Catch {
 			}
 				
 			# Create a hash table to splat Test-PasswordComplexity parameters.
 			$testPasswordComplexityParameters = @{}
-			$testPasswordComplexityParameters.Password = $PSItem.Password
+			#$testPasswordComplexityParameters.Password = $PSItem.Password
+			$testPasswordComplexityParameters.Password = $PSItem.$PasswordPropertyName
 			If ( $userName ) { $testPasswordComplexityParameters.UserName = $userName }
 			If ( $displayName ) { $testPasswordComplexityParameters.DisplayName = $displayName }
 			If ( $MinLength ) { $testPasswordComplexityParameters.MinLength = $MinLength }

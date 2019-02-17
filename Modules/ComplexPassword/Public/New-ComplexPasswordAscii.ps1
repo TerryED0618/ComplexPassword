@@ -58,22 +58,27 @@ Function New-ComplexPasswordAscii {
 		.PARAMETER MinCategory Int
 			The minimum number of character categories (upper/lower/number/special) required to be compliant.  The maxiumum value is 4.  The default is zero.
 			
+		.PARAMETER PasswordPropertyName
+			The CSV file column or property name for the new password.  The default is 'NewPassword'.
+			The CSV file column or property name for the new password description is 'NewPasswordDescription'.  When -PasswordPropertyName is used the property name will be '<PasswordPropertyName>Description'.  
+
 		.PARAMETER ExcludeCharacter String
 			One or more characters to be excluded from being generated.  The default is $NULL, no excluded characters.
-				% percent-sign - Enviroment variable substitution
-				& ampersand - Inline command separator
-				+ plus-sign - Excel macro prefix
-				, comma - Comma Separated Value file delimiter
-				< less-than - Redirect input
-				= equals-sign - Excel macro prefix
-				> greater-than - Redirect output
-				^ caret - Escape character
-				| vertical-bar - Pipe output to next command's input
-				0Oo zero OSCAR oscar - ambiguous
-				1Il one INDIA lima - ambiguous
-				-_ hyphen horizontal-bar - ambiguous
-				'` apostrophe reverse-apostrophe - ambiguous
-			-ExcludeCharacter "IOlo01'`%&+,<=>^|-_"
+				" Quotation-Mark, Comma Separated Value file delimiter
+				% Percent-Sign - Enviroment variable substitution
+				& Ampersand - Inline command separator
+				+ Plus-Sign - Excel macro prefix
+				, Comma - Comma Separated Value file delimiter
+				< Less-Than - Redirect input
+				= Equals-Sign - Excel macro prefix
+				> Greater-Than - Redirect output
+				^ Circumflex-Accent - Escape character
+				| Vertical-Line - Pipe output to next command's input
+				0Oo Zero OSCAR oscar - ambiguous
+				1Il One INDIA lima - ambiguous
+				-_ Hyphen-Minus Low-Line - ambiguous
+				'` Apostrophe Grave-Accent - ambiguous
+			-ExcludeCharacter '"IOlo01''`%&+,<=>^|-_'
 				
 				
 		.PARAMETER Delimiter Char
@@ -122,10 +127,13 @@ Function New-ComplexPasswordAscii {
 		.EXAMPLE
 			New-ComplexPasswordAscii -NumPassword 100 -MinLength 15 -MinUppercase 1 -MinLowercase 1 -MinNumber 1 -MinSpecial 1 -OutFileNameTag Num100Len15u1L1N1S1
 
+		.EXAMPLE
+			New-ComplexPasswordAscii -PasswordPropertyName Credential
+
 		.NOTE
 			Author: Terry E Dow
 			Creation Date: 2018-08-01
-			Last Modified: 2018-12-05
+			Last Modified: 2019-02-16
 
 			Reference:
 				Password must meet complexity requirements https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/password-must-meet-complexity-requirements
@@ -174,6 +182,11 @@ Function New-ComplexPasswordAscii {
 		[ValidateRange(0,4)]
 		[Int] $MinCategory = 0,
 
+		[Parameter(
+		ValueFromPipeline=$TRUE,
+		ValueFromPipelineByPropertyName=$TRUE )]
+		[String] $PasswordPropertyName = 'NewPassword',
+		
 		[Parameter(
 		ValueFromPipeline=$TRUE,
 		ValueFromPipelineByPropertyName=$TRUE )]
@@ -295,6 +308,7 @@ Function New-ComplexPasswordAscii {
 	# Define constants
 	#---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 
+<#
 	# Build description of US-ASCII characters by mixing ISO-8859-1 entity names and ICAO (NATO) phonetic names.
 	$USAsciiDescription = New-Object -TypeName System.Collections.Hashtable # Support case sensitive keys.
 	$USAsciiDescription.Add( ' ', 'space' ) # 32 # ISO-8859-1 (ISO Latin 1) Character Encoding
@@ -392,6 +406,7 @@ Function New-ComplexPasswordAscii {
 	$USAsciiDescription.Add( '|', 'vertical-bar' ) # 124
 	$USAsciiDescription.Add( '}', 'right-curly-brace' ) # 125
 	$USAsciiDescription.Add( '~', 'tilde' ) # 126
+#>
 
 	#endregion Script Header
 
@@ -540,10 +555,11 @@ Function New-ComplexPasswordAscii {
 			Write-Debug "`$password shuffled:,$password"
 			
 			# Get descriptive version of password.
-			$passwordDescription = ''
-			For ( $index = 0; $index -LT $password.Length; $index++ ) {
-				$passwordDescription = (( $passwordDescription, $USAsciiDescription[ $password.Substring($index,1) ] ) -Join '_').Trim('_')
-			}
+			$passwordDescription = ConvertTo-AsciiDescription( $password )
+			#$passwordDescription = ''
+			#For ( $index = 0; $index -LT $password.Length; $index++ ) {
+			#	$passwordDescription = (( $passwordDescription, $USAsciiDescription[ $password.Substring($index,1) ] ) -Join '_').Trim('_')
+			#}
 			Write-Debug "`$passwordDescription:,$passwordDescription"
 			
 			If ( $Debug ) {
@@ -568,13 +584,13 @@ Function New-ComplexPasswordAscii {
 				
 				# Collect metrics with debug.
 				$report = New-Object PSObject |
-					Select-Object -Property @{ Name='NewPassword'; Expression={$password} }, @{ Name='NewPasswordDescription'; Expression={$passwordDescription} }, @{ Name='IsCompliant'; Expression={ $testResult.isCompliant } }, @{ Name='Status'; Expression={ $testResult.status } }
+					Select-Object -Property @{ Name=$PasswordPropertyName; Expression={$password} }, @{ Name="$PasswordPropertyName`Description"; Expression={$passwordDescription} }, @{ Name='IsCompliant'; Expression={ $testResult.isCompliant } }, @{ Name='Status'; Expression={ $testResult.status } }
 					
 			} Else {
 			
 				# Collect metrics.
 				$report = New-Object PSObject |
-					Select-Object -Property @{ Name='NewPassword'; Expression={$password} }, @{ Name='NewPasswordDescription'; Expression={$passwordDescription} }
+					Select-Object -Property @{ Name=$PasswordPropertyName; Expression={$password} }, @{ Name="$PasswordPropertyName`Description"; Expression={$passwordDescription} }
 					
 			}
 

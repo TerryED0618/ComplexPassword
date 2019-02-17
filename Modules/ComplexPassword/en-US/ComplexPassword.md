@@ -3,10 +3,10 @@
 ## Description
   Generates and test complex password.
   Password generator [New-ComplexPasswordAscii] only produces ASCII/ANSI password.
-  Password tester [Test-PasswordComplexityFromCSV] supports Unicode.  
+  Password tester [Test-PasswordComplexityToCSV] supports Unicode.  
 
 ---
-## Test-PasswordComplexityFromCSV
+## Test-PasswordComplexityToCSV
 
 ###	SYNOPSIS
 		Test password complexity from a CSV file.
@@ -64,6 +64,15 @@
 ### PARAMETER MinCategory Int
 		The minimum number of character categories (upper/lower/number/special) required to be compliant.  The maxiumum value is 5.  The default is zero.
 
+### PARAMETER PasswordPropertyName
+		The CSV file column or property name that contains passwords.  The default is 'Password'.
+
+###	PARAMETER UserNamePropertyName
+		The CSV file column or property name that contains usernames.  The default is 'UserName'.
+
+###	PARAMETER DisplayNamePropertyName
+		The CSV file column or property name that contains display names.  The default is 'DisplayName'.
+
 ### PARAMETER UseActiveDirectory Switch
 		Default is not to use Active Directory.  If enabled:
 		* Uses executing workstation's Active Directory domain
@@ -120,6 +129,33 @@
 
 ### EXAMPLE
 		Test-PasswordComplexityFromCSV -Path .\Test-PasswordComplexityFromCSV-TEST.csv -ExcludeCharacter '~,' -OutFileNameTag XC
+
+###	EXAMPLE
+		Given CSV (.\Test-PasswordComplexityFromCSV.csv) file header:
+			UserName,DisplayName,Credential
+			Wiliam,Bob,ABCdef123!@#
+			...
+
+		Use -PasswordPropertyName:
+			Test-PasswordComplexityFromCSV -PasswordPropertyName Credential
+
+###	EXAMPLE
+		Given CSV (.\Test-PasswordComplexityFromCSV.csv) file header:
+			AccountName,DisplayName,Password
+			Wiliam,Bob,ABCdef123!@#
+			...
+
+		Use -PasswordPropertyName:
+			Test-PasswordComplexityFromCSV -UserNamePropertyName AccountName
+
+###	EXAMPLE
+		Given CSV (.\Test-PasswordComplexityFromCSV.csv) file header:
+			UserName,FriendlyName,Password
+			Wiliam,Bob,ABCdef123!@#
+			...
+
+		Use -PasswordPropertyName:
+			Test-PasswordComplexityFromCSV -DisplayNamePropertyName FriendlyName
 
 ### NOTE
 		Author: Terry E Dow
@@ -195,23 +231,28 @@
 
 ### PARAMETER MinCategory Int
 		The minimum number of character categories (upper/lower/number/special) required to be compliant.  The maxiumum value is 4.  The default is zero.
-		
+					
+###	PARAMETER PasswordPropertyName
+		The CSV file column or property name for the new password.  The default is 'NewPassword'.
+		The CSV file column or property name for the new password description is 'NewPasswordDescription'.  When -PasswordPropertyName is used the property name will be '<PasswordPropertyName>Description'.  
+
 ### PARAMETER ExcludeCharacter String
 		One or more characters to be excluded from being generated.  The default is $NULL, no excluded characters.
-			% percent-sign - Enviroment variable substitution
-			& ampersand - Inline command separator
-			+ plus-sign - Excel macro prefix
-			, comma - Comma Separated Value file delimiter
-			< less-than - Redirect input
-			= equals-sign - Excel macro prefix
-			> greater-than - Redirect output
-			^ caret - Escape character
-			| vertical-bar - Pipe output to next command's input
-			0Oo zero OSCAR oscar - ambiguous
-			1Il one INDIA lima - ambiguous
-			-_ hyphen horizontal-bar - ambiguous
-			'` apostrophe reverse-apostrophe - ambiguous
-		-ExcludeCharacter "IOlo01'`%&+,<=>^|-_"
+			" Quotation-Mark, Comma Separated Value file delimiter
+			% Percent-Sign - Enviroment variable substitution
+			& Ampersand - Inline command separator
+			+ Plus-Sign - Excel macro prefix
+			, Comma - Comma Separated Value file delimiter
+			< Less-Than - Redirect input
+			= Equals-Sign - Excel macro prefix
+			> Greater-Than - Redirect output
+			^ Circumflex-Accent - Escape character
+			| Vertical-Line - Pipe output to next command's input
+			0Oo Zero OSCAR oscar - ambiguous
+			1Il One INDIA lima - ambiguous
+			-_ Hyphen-Minus Low-Line - ambiguous
+			'` Apostrophe Grave-Accent - ambiguous
+		-ExcludeCharacter '"IOlo01''`%&+,<=>^|-_'
 			
 ### PARAMETER Delimiter Char
 		Specifies the delimiter that separates the property values in the CSV file. The default is a comma (,). Enter a character, such as a colon (:). To specify a semicolon (;), enclose it in quotation marks.
@@ -262,8 +303,47 @@
 ### NOTE
 		Author: Terry E Dow
 		Creation Date: 2018-08-01
-		Last Modified: 2018-12-02
 
 		Reference:
 			Password must meet complexity requirements https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/password-must-meet-complexity-requirements
 			Selecting Secure Passwords https://msdn.microsoft.com/en-us/library/cc875839.aspx?f=255&MSPPError=-2147217396
+---
+## ConvertTo-AsciiDescription
+### SYNOPSIS
+
+###	SYNOPSIS
+		Convert a one or more strings to a US ASCII character decription.  
+
+###	DESCRIPTION
+		Convert a one or more strings to a US ASCII character decription using ICAO (NATO) phonetic alphabet and Unicode 8859-1:1998(en) (ISO Latin 1) entity names.  
+
+### PARAMETER InputObject String
+		Specifies one or more strings to be described.  
+
+###	PARAMETER Delimiter String
+		Specifies one or more characters placed between the descriptive character strings. The default is space (" ").
+			
+###	EXAMPLE
+		ConvertTo-AsciiDescription '~!@#$%^&*()_+'
+
+		tilde exclamation-mark commercial-at number-sign dollar-sign percent-sign circumflex-accent ampersand asterisk left-parenthesis right-parenthesis low-line plus-sign
+			
+###	EXAMPLE
+		ConvertTo-AsciiDescription 'Testing, testing, 1, 2, 3.', 'The quick brown fox'
+			
+		TANGO echo sierra tango india november golf comma space tango echo sierra tango india november golf comma space one comma space two comma space three full-stop
+		TANGO hotel echo space quebec uniform india charlie kilo space bravo romeo oscar whiskey november space foxtrot oscar x-ray
+		
+###	EXAMPLE
+		ConvertTo-AsciiDescription 'Testing, testing, 1, 2, 3.', 'The quick brown fox' -Delimiter '_'
+			
+		TANGO_echo_sierra_tango_india_november_golf_comma_space_tango_echo_sierra_tango_india_november_golf_comma_space_one_comma_space_two_comma_space_three_full-stop
+		TANGO_hotel_echo_space_quebec_uniform_india_charlie_kilo_space_bravo_romeo_oscar_whiskey_november_space_foxtrot_oscar_x-ray
+		
+###	NOTE
+		Author: Terry E Dow
+		Creation Date: 2019-02-14
+
+###	Reference:
+		NATO phonetic alphabet, International Radiotelephony Spelling Alphabet (1957), International Civil Aviation Organization (ICAO) Phonetic Alphabet, International Telecommunication Union (ITU) Phonetic Alphabet https://www.icao.int/Pages/AlphabetRadiotelephony.aspx
+		ISO (the International Organization for Standardization) and IEC (the International Electrotechnical Commission) 8859-1:1998(en) https://www.unicode.org/charts/PDF/U0000.pdf https://www.iso.org/obp/ui/#iso:std:iso-iec:8859:-1:en
