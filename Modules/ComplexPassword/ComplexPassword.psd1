@@ -129,6 +129,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 2019-02-16 3.3.0 Add public function .\Modules\ComplexPassword\Public\ConvertTo-AsciiDescription.ps1.
 2019-02-16 3.3.0 Updated function .\Modules\ComplexPassword\Public\New-ComplexPasswordAscii.ps1 to depend on function ConvertTo-AsciiDescription.
 2019-02-16 3.3.0 Add feature to .\Modules\ComplexPassword\Public\Test-PasswordComplexityToCSV.ps1 to support specifying the property name written to CSV file as an alternative to 'NewPassword' and 'NewPasswordDescription'.  
+2019-02-17 3.3.0 Error corrected in .\Modules\ComplexPassword\Public\New-ComplexPasswordAscii.ps1 relating to new feature PropertyName.  
 '@
 
 	

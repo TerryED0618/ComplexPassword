@@ -595,7 +595,7 @@ Function New-ComplexPasswordAscii {
 			}
 
 			# Write results.
-			Write-Verbose $report.NewPassword
+			Write-Verbose $report.$PasswordPropertyName
 			Write-Output $report
 
 		} |
